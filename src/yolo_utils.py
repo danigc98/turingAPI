@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 from scipy import special
-import onnxruntime as rt
 
 
 def get_anchors(anchors_path, tiny=False):
@@ -10,7 +9,6 @@ def get_anchors(anchors_path, tiny=False):
         anchors = f.readline()
     anchors = np.array(anchors.split(','), dtype=np.float32)
     return anchors.reshape(3, 3, 2)
-
 
 
 # preprocess function is from tensorflow-yolov4-tflite/core/utils.py -> MIT License
@@ -41,13 +39,10 @@ def image_preprocess(image, target_size, gt_boxes=None):
 
 def postprocess(detections, original_size, input_size, score_threshold, ANCHORS, STRIDES, XYSCALE=[1,1,1]):
     pred_bbox = postprocess_bbbox(detections, ANCHORS, STRIDES, XYSCALE)
-    bboxes = postprocess_boxes(pred_bbox, original_size, input_size, 0.25)
+    bboxes = postprocess_boxes(pred_bbox, original_size, input_size, score_threshold)
     bboxes = nms(bboxes, 0.213, method='nms')
 
     return bboxes
-
-
-
 
 
 def postprocess_bbbox(pred_bbox, ANCHORS, STRIDES, XYSCALE=[1,1,1]):
